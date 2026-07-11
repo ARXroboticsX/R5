@@ -6,7 +6,6 @@
 namespace arx::r5 {
 R5Controller::R5Controller() : Node("r5_controller_node") {
   RCLCPP_INFO(this->get_logger(), "机械臂开始初始化...");
-  rclcpp::on_shutdown(std::bind(&R5Controller::cleanup, this));
   std::string arm_control_type = this->declare_parameter("arm_control_type", "normal");
   std::string package_name = "arx_r5_controller";
   std::string package_share_dir = ament_index_cpp::get_package_share_directory(package_name);
@@ -113,17 +112,17 @@ void R5Controller::PubState() {
   message.end_pos = result;
 
   std::vector<double> joint_pos_vector = interfaces_ptr_->getJointPositons();
-  for (int i = 0; i <= 7; i++) {
+  for (std::size_t i = 0; i < message.joint_pos.size() && i < joint_pos_vector.size(); ++i) {
     message.joint_pos[i] = joint_pos_vector[i];
   }
 
   std::vector<double> joint_velocities_vector = interfaces_ptr_->getJointVelocities();
-  for (int i = 0; i <= 7; i++) {
+  for (std::size_t i = 0; i < message.joint_vel.size() && i < joint_velocities_vector.size(); ++i) {
     message.joint_vel[i] = joint_velocities_vector[i];
   }
 
   std::vector<double> joint_current_vector = interfaces_ptr_->getJointCurrent();
-  for (int i = 0; i < 7; i++) {
+  for (std::size_t i = 0; i < message.joint_cur.size() && i < joint_current_vector.size(); ++i) {
     message.joint_cur[i] = joint_current_vector[i];
   }
   // 发布消息
@@ -194,15 +193,15 @@ void R5Controller::VrPubState() {
 
   msg.end_pos = result;
 
-  for (int i = 0; i <= 7; i++) {
+  for (std::size_t i = 0; i < msg.joint_pos.size() && i < joint_pos_vector.size(); ++i) {
     msg.joint_pos[i] = joint_pos_vector[i];
   }
 
-  for (int i = 0; i <= 7; i++) {
+  for (std::size_t i = 0; i < msg.joint_vel.size() && i < joint_velocities_vector.size(); ++i) {
     msg.joint_vel[i] = joint_velocities_vector[i];
   }
 
-  for (int i = 0; i < 7; i++) {
+  for (std::size_t i = 0; i < msg.joint_cur.size() && i < joint_current_vector.size(); ++i) {
     msg.joint_cur[i] = joint_current_vector[i];
   }
   // 发布消息
